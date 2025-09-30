@@ -15,6 +15,7 @@ export default function UserWizard() {
     stage: "1",
     status: "active",
     description: "",
+    remarks: [], // <-- Added remarks as array
   });
 
   const [submitted, setSubmitted] = useState(false);
@@ -89,7 +90,7 @@ export default function UserWizard() {
                 ? "Contact Details"
                 : step === 3
                 ? "User Status"
-                : "Review & Submit"}
+                : "Remarks & Review"}
             </p>
 
             <ProgressBar />
@@ -297,15 +298,63 @@ export default function UserWizard() {
               </form>
             )}
 
-            {/* Step 4 */}
+            {/* Step 4 - Remarks & Review */}
             {step === 4 && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium">Review Information</h3>
+                <h3 className="text-lg font-medium">Remarks</h3>
+
+                {formData.remarks.map((r, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={r.type}
+                      onChange={(e) => {
+                        const newRemarks = [...formData.remarks];
+                        newRemarks[index].type = e.target.value;
+                        newRemarks[index].timestamp = new Date();
+                        setFormData({ ...formData, remarks: newRemarks });
+                      }}
+                      placeholder="Enter remark"
+                      className="flex-1 border rounded-lg p-3"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newRemarks = formData.remarks.filter(
+                          (_, i) => i !== index
+                        );
+                        setFormData({ ...formData, remarks: newRemarks });
+                      }}
+                      className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      remarks: [
+                        ...formData.remarks,
+                        { type: "", timestamp: new Date() },
+                      ],
+                    })
+                  }
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  + Add Remark
+                </button>
+
+                <h3 className="text-lg font-medium mt-6">Review Information</h3>
                 <pre className="bg-gray-100 p-4 rounded-lg text-sm text-gray-700">
                   {JSON.stringify(formData, null, 2)}
                 </pre>
 
-                <div className="flex justify-between">
+                <div className="flex justify-between pt-4">
                   <button
                     type="button"
                     onClick={handleBack}
@@ -355,6 +404,7 @@ export default function UserWizard() {
                 stage: "1",
                 status: "active",
                 description: "",
+                remarks: [],
               });
             }}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
